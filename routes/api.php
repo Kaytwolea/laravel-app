@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\TaskController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,9 +17,15 @@ use Illuminate\Support\Facades\Route;
 Route::resource('tasks', TaskController::class);
 
 Route::post('usershandling', [TaskController::class, 'Createaccount']);
-Route::get('getusers', [TaskController::class, 'getUser'])->middleware('auth:api');
-Route::post('logout', [TaskController::class, 'Logout'])->middleware('auth:api');
+Route::middleware('auth:api', 'verified', 'twofactorauth')->prefix('v1')->group(function () {
+    Route::get('getuser', [TaskController::class, 'getUser']);
+    Route::post('logout', [TaskController::class, 'Logout']);
+});
+Route::get('notloggedin', [TaskController::class, 'notLoggedin'])->name('unauthorized');
 Route::get('getallusers', [TaskController::class, 'getallUser']);
 Route::delete('delete/{id}', [TaskController::class, 'Deleteuser']);
 Route::post('login', [TaskController::class, 'Login']);
-Route::post('verifycode', [TaskController::class, 'confirmCode']);
+Route::post('toggle', [TaskController::class, 'ToggleTwoFactor'])->middleware('auth:api');
+Route::post('sendcode', [TaskController::class, 'SendTwoFactor'])->middleware('auth:api');
+Route::post('resendcode', [TaskController::class, 'resendCode'])->middleware('auth:api');
+Route::post('verifycode', [TaskController::class, 'verifyCode'])->middleware('auth:api');
